@@ -12,6 +12,7 @@ A geolocation based property evaluator web-application using Django.
 <li>Sociocultural Analysis</li>
 <li>About & Contact details</li>
 <li>Interactive Map interface</li>
+<li>API integrations</li>
 
 
 ## Installation
