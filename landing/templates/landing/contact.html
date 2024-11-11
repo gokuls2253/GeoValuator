@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us - GeoValuator{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <div class="row">
+            <!-- Contact Form Section -->
+            <div class="col-lg-6 col-md-12">
+                <h2 class="text-black mb-4 animate__animated animate__fadeInLeft">Contact Us</h2>
+                <p class="mb-5 animate__animated animate__fadeInLeft animate__delay-1s">Feel free to get in touch with us using the form below, or by reaching out directly to our office address.</p>
+
+                <!-- Contact Form -->
+                <form id="contact-form" action="" method="POST" class="contact-form animate__animated animate__fadeInLeft animate__delay-2s">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <input type="text" class="form-control form-control-lg" id="name" name="name" placeholder="Your Name" required>
+                        <small class="text-danger d-none" id="name-error">Please enter your name.</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <input type="email" class="form-control form-control-lg" id="email" name="email" placeholder="Your Email" required>
+                        <small class="text-danger d-none" id="email-error">Please enter a valid email address.</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <textarea class="form-control form-control-lg" id="message" name="message" rows="5" placeholder="Your Message" required></textarea>
+                        <small class="text-danger d-none" id="message-error">Please enter your message.</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-dark btn-lg w-100" id="submit-btn">Send Message</button>
+                </form>
+            </div>
+
+            <!-- Office Address and Social Links Section -->
+            <div class="col-lg-6 col-md-12">
+                <h2 class="text-black mb-4 animate__animated animate__fadeInRight">Our Address</h2>
+                <p class="mb-5 animate__animated animate__fadeInRight animate__delay-1s">Visit us at our office or follow us on social media:</p>
+
+                <address class="mb-4 animate__animated animate__fadeInRight animate__delay-2s">
+                    <strong>GeoValuator Headquarters</strong><br>
+                    123 Geo Street, Suite 456<br>
+                    City, Country 12345<br>
+                    <a href="mailto:info@geovaluator.com" class="text-dark">info@geovaluator.com</a><br>
+                    Phone: +123 456 7890
+                </address>
+
+                <!-- Social Media Links -->
+                <div class="mb-4 animate__animated animate__fadeInRight animate__delay-3s">
+                    <h4 class="mb-4">Reach Us</h4>
+                    <div class="social-icons">
+                        <a href="#" class="btn btn-outline-dark btn-icon"><i class="fas fa-envelope"></i> Email</a>
+                        <a href="#" class="btn btn-outline-dark btn-icon"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                        <a href="#" class="btn btn-outline-dark btn-icon"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                    </div>
+                </div>
+
+                <div class="mb-4 animate__animated animate__fadeInRight animate__delay-4s">
+                    <h4 class="mb-4">Follow Us</h4>
+                    <div class="social-icons">
+                        <a href="#" class="btn btn-outline-dark btn-icon"><i class="fab fa-twitter"></i> Twitter</a>
+                        <a href="#" class="btn btn-outline-dark btn-icon"><i class="fab fa-instagram"></i> Instagram</a>
+                        <a href="#" class="btn btn-outline-dark btn-icon"><i class="fab fa-facebook-f"></i> Facebook</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Modal for Thank You Message -->
+    <div class="modal fade" id="thankYouModal" tabindex="-1" aria-labelledby="thankYouModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="thankYouModalLabel">Thank You!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Your message has been sent successfully. We will get back to you shortly.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dark" id="okay-btn">Okay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation logic
+    function validateForm() {
+        let isValid = true;
+
+        const nameInput = document.getElementById("name");
+        const emailInput = document.getElementById("email");
+        const messageInput = document.getElementById("message");
+
+        const nameError = document.getElementById("name-error");
+        const emailError = document.getElementById("email-error");
+        const messageError = document.getElementById("message-error");
+
+        // Reset error states
+        nameError.classList.add("d-none");
+        emailError.classList.add("d-none");
+        messageError.classList.add("d-none");
+
+        // Validate name
+        if (nameInput.value.trim() === "") {
+            nameError.classList.remove("d-none");
+            isValid = false;
+        }
+
+        // Validate email
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(emailInput.value.trim())) {
+            emailError.classList.remove("d-none");
+            isValid = false;
+        }
+
+        // Validate message
+        if (messageInput.value.trim() === "") {
+            messageError.classList.remove("d-none");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Handle form submission and validation
+    document.getElementById("contact-form").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent default form submission behavior
+
+        if (validateForm()) {
+            // Show the thank you modal if validation passes
+            var modal = new bootstrap.Modal(document.getElementById('thankYouModal'), {
+                keyboard: false
+            });
+            modal.show();
+
+            // Optionally reset the form after successful submission
+            document.getElementById("contact-form").reset();
+        }
+    });
+
+    // Handle the "Okay" button click to close the modal
+    document.getElementById("okay-btn").addEventListener("click", function() {
+        var modal = bootstrap.Modal.getInstance(document.getElementById('thankYouModal'));
+        modal.hide(); // Hide the modal when "Okay" button is clicked
+    });
+</script>
+{% endblock %}

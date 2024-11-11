@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Services - GeoValuator{% endblock %}
+
+{% block content %}
+<section id="services" class="text-center py-5">
+    <div class="container">
+        <h2 class="text-center mb-5 animate__animated animate__fadeInDown">Our Services</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm service-card animate__animated animate__fadeInUp">
+                    <div class="card-body">
+                        <i class="fas fa-map-marked-alt fa-3x mb-3 text-primary"></i>
+                        <h4 class="card-title">Geospatial Insights</h4>
+                        <p class="card-text">
+                            Gain insights into urban development, migration patterns, and environmental factors. Use comprehensive geospatial data for informed decisions.
+                        </p>
+                        <a href="/environment" class="btn btn-dark btn-sm mt-3">Proceed</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm service-card animate__animated animate__fadeInUp animate__delay-1s">
+                    <div class="card-body">
+                        <i class="fas fa-chart-line fa-3x mb-3 text-primary"></i>
+                        <h4 class="card-title">Property Prediction</h4>
+                        <p class="card-text">
+                            We utilize advanced data modeling techniques to forecast property prices across various regions. Predict future property values with accuracy using our tools.
+                        </p>
+                        <a href="/project" class="btn btn-dark btn-sm mt-3">Proceed</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm service-card animate__animated animate__fadeInUp animate__delay-2s">
+                    <div class="card-body">
+                        <i class="fas fa-users fa-3x mb-3 text-primary"></i>
+                        <h4 class="card-title">Sociocultural Analysis</h4>
+                        <p class="card-text">
+                            Explore societal trends, community development, and cultural dynamics. Make data-driven decisions by analyzing sociocultural factors and behaviors.
+                        </p>
+                        <a href="/culture" class="btn btn-dark btn-sm mt-3">Proceed</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

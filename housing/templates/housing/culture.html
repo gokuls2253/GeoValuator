@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% block title %}Sociocultural Analysis{% endblock %}
+{% block content %}
+
+<div class="container">
+    <h2 class="text-center mb-3">Sociocultural Insights</h2>
+    <p class="text-center mb-4">Select a location on the map and click submit to get cultural insights, including languages, traditions, cuisine, and historical sites.</p>
+
+    <!-- Location Input Form -->
+    <form id="culture-form" class="p-4 border rounded bg-light shadow-sm" onsubmit="handleFormSubmit(event)">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="location" class="fw-bold">Location:</label>
+                    <input type="text" class="form-control" id="location" placeholder="Enter location" required autocomplete="off">
+                    <ul id="suggestions" class="list-group" style="display: none;"></ul>
+                </div>
+            </div>
+            <div id="map" class="mb-3 rounded" style="width: 100%; height: 400px;"></div>
+            <div class="form-group mb-3 text-center">
+                <button type="submit" class="btn btn-dark mt-3">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Cultural Insights Display -->
+    <div id="culture-info" class="p-4 border rounded bg-light shadow-sm">
+        <h4 class="text-center">Cultural Status</h4>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card text-center mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Languages Spoken</h5>
+                        <p id="languages" class="card-text">Awaiting input...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Population Demographics</h5>
+                        <p id="population" class="card-text">Awaiting input...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Traditions and Festivals</h5>
+                        <p id="festivals" class="card-text">Awaiting input...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Cuisine</h5>
+                        <p id="cuisine" class="card-text">Awaiting input...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Historical Sites and Monuments</h5>
+                        <p id="historical_sites" class="card-text">Awaiting input...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf/turf.min.js"></script>
+
+<script>
+    let selectedLocationID;
+    let selectedLat, selectedLng;
+
+    // Map Initialization
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic2Fpa2F0eHNocmV5IiwiYSI6ImNrcHJ3cDQ0NzBiYWgycXA4NW53dGIzdjQifQ.NASg72RH5BGwOFLBTU6LvA';  // Replace with your actual Mapbox access token
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [77.590019, 12.974208],
+        zoom: 5
+    });
+    map.addControl(new mapboxgl.NavigationControl());
+
+    // Highlight location on map
+    function highlightLocation(lng, lat) {
+        selectedLat = lat;
+        selectedLng = lng;
+
+        if (map.getLayer('highlight')) {
+            map.removeLayer('highlight');
+            map.removeSource('highlight');
+        }
+
+        const radiusInMeters = 500;
+        const options = { steps: 64, units: 'meters' };
+        const circleFeature = turf.circle([lng, lat], radiusInMeters, options);
+
+        map.addSource('highlight', { type: 'geojson', data: circleFeature });
+        map.addLayer({
+            id: 'highlight',
+            type: 'line',
+            source: 'highlight',
+            paint: { 'line-color': '#ff0000', 'line-width': 3, 'line-opacity': 0.6 }
+        });
+
+        const bounds = turf.bbox(circleFeature);
+        map.fitBounds(bounds, { padding: 20 });
+    }
+
+    // Display Location Suggestions
+    const locationInput = document.getElementById('location');
+    locationInput.addEventListener('input', () => {
+        const query = locationInput.value;
+        if (query.length >= 3) {
+            fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${mapboxgl.accessToken}`)
+                .then(response => response.json())
+                .then(data => updateSuggestions(data.features))
+                .catch(error => console.error('Error fetching suggestions:', error));
+        } else {
+            document.getElementById('suggestions').style.display = 'none';
+        }
+    });
+
+    // Update Suggestions List
+    function updateSuggestions(features) {
+        const suggestionsList = document.getElementById('suggestions');
+        suggestionsList.innerHTML = '';
+        suggestionsList.style.display = features.length > 0 ? 'block' : 'none';
+
+        features.forEach(feature => {
+            const suggestion = document.createElement('li');
+            suggestion.classList.add('list-group-item');
+            suggestion.textContent = feature.place_name;
+            suggestion.dataset.lng = feature.center[0];
+            suggestion.dataset.lat = feature.center[1];
+            suggestion.addEventListener('click', () => selectSuggestion(suggestion));
+            suggestionsList.appendChild(suggestion);
+        });
+    }
+
+    // Select a Location from Suggestions
+    function selectSuggestion(suggestion) {
+        locationInput.value = suggestion.textContent;
+        document.getElementById('suggestions').style.display = 'none';
+        highlightLocation(suggestion.dataset.lng, suggestion.dataset.lat);
+        fetchWikidataID(suggestion.textContent);
+    }
+
+    // Fetch Wikidata ID based on location name
+    function fetchWikidataID(location) {
+        const url = `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${location}&language=en&format=json&origin=*`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.search.length > 0) {
+                    selectedLocationID = data.search[0].id;
+                    fetchCulturalData(selectedLocationID);
+                } else {
+                    const simplifiedLocation = location.split(',')[0].trim();
+                    console.log(`Trying simplified search for: ${simplifiedLocation}`);
+                    fetchSimplifiedWikidataID(simplifiedLocation);
+                }
+            })
+            .catch(error => console.error('Error fetching Wikidata ID:', error));
+    }
+
+    // Fetch Wikidata ID using simplified location name
+    function fetchSimplifiedWikidataID(simplifiedLocation) {
+        const url = `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${simplifiedLocation}&language=en&format=json&origin=*`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.search.length > 0) {
+                    selectedLocationID = data.search[0].id;
+                    fetchCulturalData(selectedLocationID);
+                } else {
+                    alert("Location not found in Wikidata.");
+                }
+            })
+            .catch(error => console.error('Error fetching simplified Wikidata ID:', error));
+    }
+
+    // Fetch cultural data using SPARQL queries
+    function fetchCulturalData(locationID) {
+        const endpoint = "https://query.wikidata.org/sparql";
+
+        const queries = {
+            languages: `
+                SELECT ?languageLabel WHERE {
+                    wd:${locationID} wdt:P37 ?language.
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+                }
+            `,
+            population: `
+                SELECT ?population WHERE {
+                    wd:${locationID} wdt:P1082 ?population.
+                }
+            `,
+            festivals: `
+                SELECT ?festivalLabel WHERE {
+                    ?festival wdt:P31 wd:Q1507685;
+                             wdt:P17 wd:${locationID}.
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+                }
+            `,
+            cuisine: `
+                SELECT ?foodLabel WHERE {
+                    ?food wdt:P279 wd:Q2095;
+                          wdt:P17 wd:${locationID}.
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+                }
+            `,
+            historical_sites: `
+                SELECT ?siteLabel WHERE {
+                    ?site wdt:P31 wd:Q839954;
+                          wdt:P17 wd:${locationID}.
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+                }
+            `
+        };
+
+        Object.keys(queries).forEach((key) => {
+            const url = `${endpoint}?query=${encodeURIComponent(queries[key])}&format=json`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const items = data.results.bindings.map(item => item[`${key}Label`]?.value || "N/A").join(", ");
+                    document.getElementById(key).textContent = items || "Data not available";
+                })
+                .catch(error => console.error(`Error fetching ${key} data:`, error));
+        });
+    }
+</script>
+
+{% endblock %}

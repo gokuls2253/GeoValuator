@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}GeoValuator{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Animation and Project Introduction -->
+<section id="hero" class="hero-section bg-dark text-white text-center py-5">
+    <div class="container">
+        <h1 class="display-4 animate__animated animate__fadeInDown">Welcome to GeoValuator</h1>
+        <p class="lead animate__animated animate__fadeIn animate__delay-1s">Your smart solution for property-based queries using advanced prediction methods and geospatial technology.</p>
+        <a href="/home" class="btn btn-light btn-lg mt-4 animate__animated animate__fadeInUp animate__delay-2s">Learn More</a>
+    </div>
+</section>
+
+<!-- Call to Action Section with Animated Background -->
+<section id="cta" class="cta-section bg-primary text-white text-center py-5 position-relative overflow-hidden">
+    <div class="animated-bg"></div>
+    <div class="container">
+        <h3 class="animate__animated animate__zoomIn">Start Using GeoValuator Today!</h3>
+        <p class="lead">Join us now and get access to real-time property evaluations and predictions.</p>
+        <a href="/profile" class="btn btn-light btn-lg animate__animated animate__pulse">Get Started</a>
+    </div>
+</section>
+{% endblock %}

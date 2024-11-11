@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Home - GeoValuator{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Updated Project Explanation -->
+<section id="hero" class="hero-section bg-dark text-white text-center py-5">
+    <div class="container">
+        <h1 class="display-4 animate__animated animate__fadeInDown">GeoValuator</h1>
+        <p class="lead animate__animated animate__fadeIn animate__delay-1s">Data-driven property and land evaluation using advanced technology</p>
+        <p class="animate__animated animate__fadeIn animate__delay-2s">
+            GeoValuator is an innovative platform that leverages geospatial data and machine learning to provide real-time, accurate property evaluations. Whether you're an investor, homebuyer, or real estate professional, our tool helps you make informed decisions with confidence.
+        </p>
+        <a href="/services" class="btn btn-light btn-lg mt-3 animate__animated animate__fadeInUp animate__delay-3s">Explore Our Services</a>
+    </div>
+</section>
+
+<!-- Features Section with Hover Effects -->
+<section id="features" class="features-section bg-light text-dark py-5">
+    <div class="container text-center">
+        <h2>Why Choose GeoValuator?</h2>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="feature-box p-4 hover-shadow">
+                    <i class="fas fa-map-marked-alt fa-3x mb-3 text-primary"></i>
+                    <h4>Geospatial Insights</h4>
+                    <p>Analyze properties across any region using real-time mapping and location data.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box p-4 hover-shadow">
+                    <i class="fas fa-chart-line fa-3x mb-3 text-primary"></i>
+                    <h4>Accurate Predictions</h4>
+                    <p>Predict future market trends and property values using cutting-edge machine learning models.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box p-4 hover-shadow">
+                    <i class="fas fa-user-shield fa-3x mb-3 text-primary"></i>
+                    <h4>Data Security</h4>
+                    <p>We ensure your privacy and data security with top-level encryption and standards.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<!-- Testimonials Section with Carousel -->
+<section id="testimonials" class="testimonials-section bg-dark text-white py-5">
+    <div class="container text-center">
+        <h2>What Our Users Say</h2>
+        <h3 style="color:#212529;">What Our Users Say </h3>
+        <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <blockquote class="blockquote">
+                        <John class="mb-0">"GeoValuator made it easy for me to evaluate properties and make data-backed decisions. Highly recommended!"</p>
+                            <p> - John Doe, Real Estate Investor</p>
+                    </blockquote>
+                </div>
+                <div class="carousel-item">
+                    <blockquote class="blockquote">
+                        <Jane class="mb-0">"The best tool for accurate property value predictions. It's a game changer for anyone in real estate."</p>
+                            <p> - Jane Smith, Home Buyer</p>
+                    </blockquote>
+                </div>
+                <!-- Add more testimonials as needed -->
+            </div>
+            <a class="carousel-control-prev" href="#testimonialCarousel" role="button" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            </a>
+            <a class="carousel-control-next" href="#testimonialCarousel" role="button" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+

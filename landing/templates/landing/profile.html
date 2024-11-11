@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Profile - GeoValuator{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg animate__animated animate__fadeIn">
+                <div class="card-header text-center bg-dark text-white">
+                    <h3> Profile Information</h3>
+                </div>
+                <div class="card-body bg-light">
+                    {% if user.is_authenticated %}
+                    <div class="text-center mb-4">
+                        <!-- Profile Name with Icon -->
+                        <h5 class="mt-2"><i class="fas fa-user"></i> {{ username }}</h5>
+                    </div>
+                    <hr>
+
+                    <!-- Profile Details in two columns -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <p><strong>Email:</strong></p>
+                            <p class="text-muted">{{ email }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <p><strong>Phone Number:</strong></p>
+                            <p class="text-muted">{{ phone_number }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <p><strong>Location:</strong></p>
+                            <p class="text-muted">{{ location }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <p><strong>Bio:</strong></p>
+                            <p class="text-muted">{{ bio }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Logout Button -->
+                    <div class="text-center">
+                        <form method="POST" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-dark mt-3">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </form>
+                    </div>
+
+                    {% else %}
+                    <h4 class="text-center">You are not logged in.</h4>
+                    <div class="text-center mt-4">
+                        <a href="{% url 'login' %}" class="btn btn-dark"><i class="fas fa-sign-in-alt"></i> Login</a>
+                        <a href="{% url 'register' %}" class="btn btn-light"><i class="fas fa-user-plus"></i> Register</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

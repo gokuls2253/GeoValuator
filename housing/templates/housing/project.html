@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% block title %}Predict{% endblock %}
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-3">Property Price Prediction</h2>
+    <p class="text-center mb-4">Enter the details below and select a location on the map to get a price prediction.</p>
+
+    <!-- Input form -->
+    <form id="prediction-form" action="/housing/api/predict/" method="POST" class="p-4 border rounded bg-light shadow-sm">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="total_sqft" class="fw-bold">Property Size (sqft):</label>
+                    <input type="number" class="form-control" id="total_sqft" name="total_sqft" placeholder="Enter property size (e.g., 1200)" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="size" class="fw-bold">Number of Bedrooms (BHK):</label>
+                    <input type="number" class="form-control" id="size" name="size" placeholder="Enter number of bedrooms (e.g., 2)" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="bath" class="fw-bold">Number of Bathrooms:</label>
+                    <input type="number" class="form-control" id="bath" name="bath" placeholder="Enter number of bathrooms" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="balcony" class="fw-bold">Number of Balconies:</label>
+                    <input type="number" class="form-control" id="balcony" name="balcony" placeholder="Enter number of balconies" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="area-type" class="fw-bold">Area Type:</label>
+                    <select class="form-control" id="area-type" name="area_type" required>
+                        <option value="">Select Area Type</option>
+                        <option value="Super built-up area">Super built-up area</option>
+                        <option value="Built-up area">Built-up area</option>
+                        <option value="Plot area">Plot area</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="location" class="fw-bold">Location:</label>
+                    <input type="text" class="form-control" id="location" name="location" placeholder="Enter location" required autocomplete="off">
+                    <ul id="suggestions" class="list-group" style="display: none;"></ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Map Container -->
+        <div id="map" style="width: 100%; height: 400px;" class="mb-3 rounded"></div>
+        
+        <div class="form-group mb-3 text-center">
+            <button type="submit" class="btn btn-dark mt-3" id="predict-btn">Predict Price</button>
+        </div>
+    </form>
+
+    <!-- Modal for displaying result -->
+    <div class="modal fade" id="resultModal" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resultModalLabel">Prediction Result</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="result-output">Awaiting input...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Initialize the map with MapBox
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic2Fpa2F0eHNocmV5IiwiYSI6ImNrcHJ3cDQ0NzBiYWgycXA4NW53dGIzdjQifQ.NASg72RH5BGwOFLBTU6LvA';  // Replace with your actual access token
+    var map = new mapboxgl.Map({
+        container: 'map',  // container ID
+        style: 'mapbox://styles/mapbox/streets-v11',  // style URL
+        center: [77.59001928515158, 12.974208754851944],  // initial position [lng, lat]
+        zoom: 5  // initial zoom
+    });
+
+    // Add zoom and rotation controls to the map.
+    map.addControl(new mapboxgl.NavigationControl());
+
+    // Store reference to the highlight layer
+    var highlightLayer = null;
+
+    // Function to create a circular highlight (a GeoJSON feature) around a location
+    function highlightLocation(lng, lat) {
+        if (highlightLayer) {
+            // If the highlight already exists, remove it first
+            map.removeLayer('highlight');
+            map.removeSource('highlight');
+        }
+
+        // Create a circular area around the selected location
+        const radiusInMeters = 500; // Adjust the radius as needed
+        const options = { steps: 50, units: 'meters', properties: {} };
+        const circleFeature = turf.circle([lng, lat], radiusInMeters, options);
+
+        // Add a GeoJSON source for the circle
+        map.addSource('highlight', {
+            'type': 'geojson',
+            'data': circleFeature
+        });
+
+        // Add a layer to display the circle
+        map.addLayer({
+            'id': 'highlight',
+            'type': 'line',
+            'source': 'highlight',
+            'layout': {},
+            'paint': {
+                'line-color': '#ff0000',
+                'line-width': 3
+            }
+        });
+
+        // Fit map to the bounding box of the circle
+        const bbox = turf.bbox(circleFeature);
+        map.fitBounds(bbox, { padding: 20 });
+    }
+
+    // Fetch suggestions for location input
+    document.getElementById('location').addEventListener('input', function() {
+        var input = this.value;
+        if (input.length >= 3) {
+            var geocodingUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${input}.json?access_token=${mapboxgl.accessToken}`;
+            
+            fetch(geocodingUrl)
+                .then(response => response.json())
+                .then(data => {
+                    var suggestionsList = document.getElementById('suggestions');
+                    suggestionsList.innerHTML = '';  // Clear previous suggestions
+                    if (data.features.length > 0) {
+                        suggestionsList.style.display = 'block';
+                        data.features.forEach(function(feature) {
+                            var li = document.createElement('li');
+                            li.classList.add('list-group-item');
+                            li.textContent = feature.place_name;
+                            li.dataset.lng = feature.center[0];
+                            li.dataset.lat = feature.center[1];
+                            li.addEventListener('click', function() {
+                                document.getElementById('location').value = this.textContent;
+                                suggestionsList.style.display = 'none';
+                                highlightLocation(this.dataset.lng, this.dataset.lat);
+                            });
+                            suggestionsList.appendChild(li);
+                        });
+                    } else {
+                        suggestionsList.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Error fetching suggestions:', error));
+        } else {
+            document.getElementById('suggestions').style.display = 'none';
+        }
+    });
+
+    // Handle prediction form submission with AJAX
+    document.getElementById('prediction-form').addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent form from reloading the page
+
+        var total_sqft = document.getElementById('total_sqft').value;
+        var size = document.getElementById('size').value;
+        var bath = document.getElementById('bath').value;
+        var balcony = document.getElementById('balcony').value;
+        var areaType = document.getElementById('area-type').value;
+        var location = document.getElementById('location').value;
+
+        if (total_sqft && size && bath && balcony && areaType && location) {
+            // Send inputs to backend via fetch
+            fetch('{% url "predict_price_api" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({
+                    'total_sqft': total_sqft,
+                    'size': size,
+                    'bath': bath,
+                    'balcony': balcony,
+                    'area_type': areaType,
+                    'location': location
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Format the predicted price to 2 decimal places
+                let formattedPrice = parseFloat(data.predicted_price).toFixed(2);
+                // Display prediction result in modal
+                document.getElementById('result-output').textContent = 'Predicted Price: ' + formattedPrice + ' lakhs';
+                var resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
+                resultModal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result-output').textContent = 'Error during prediction. Please try again.';
+                var resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
+                resultModal.show();
+            });
+        } else {
+            alert('Please fill in all fields.');
+        }
+    });
+</script>
+<!-- Import Turf.js for handling geometry operations -->
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf/turf.min.js"></script>
+{% endblock %}

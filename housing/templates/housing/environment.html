@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block title %}Geospatial Insights{% endblock %}
+{% block content %}
+
+<div class="container">
+    <h2 class="text-center mb-3">Geospatial Insights</h2>
+    <p class="text-center mb-4">Enter the location and click submit to get weather and environmental insights.</p>
+
+    <!-- Location Input Form -->
+    <form id="environment-form" class="p-4 border rounded bg-light shadow-sm" onsubmit="handleFormSubmit(event)">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="location" class="fw-bold">Location:</label>
+                    <input type="text" class="form-control" id="location" placeholder="Enter location" required autocomplete="off">
+                    <ul id="suggestions" class="list-group" style="display: none;"></ul>
+                </div>
+            </div>
+            <div id="map" class="mb-3 rounded" style="width: 100%; height: 400px;"></div>
+            <div class="form-group mb-3 text-center">
+                <button type="submit" class="btn btn-dark mt-3">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Environmental Insights Display -->
+    <div id="environment-info" class="p-4 border rounded bg-light shadow-sm">
+        <h4 class="text-center">Environmental Status</h4>
+        <div class="row">
+            <!-- Weather -->
+            <div class="col-md-4">
+                <div class="card text-center mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Weather</h5>
+                        <p id="weather" class="card-text">Awaiting input...</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Wind -->
+            <div class="col-md-4">
+                <div class="card text-center mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Wind</h5>
+                        <p id="wind" class="card-text">Awaiting input...</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Air Quality -->
+            <div class="col-md-4">
+                <div class="card text-center mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Air Quality</h5>
+                        <p id="air_quality" class="card-text">Awaiting input...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Turf.js for circular highlight -->
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf/turf.min.js"></script>
+
+<script>
+    let selectedLat, selectedLng;
+
+    // Map Initialization
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic2Fpa2F0eHNocmV5IiwiYSI6ImNrcHJ3cDQ0NzBiYWgycXA4NW53dGIzdjQifQ.NASg72RH5BGwOFLBTU6LvA';  // Replace with your actual Mapbox access token
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [77.590019, 12.974208],
+        zoom: 5
+    });
+    map.addControl(new mapboxgl.NavigationControl());
+
+    // Location Highlight and Store Selected Coordinates
+    function highlightLocation(lng, lat) {
+        selectedLat = lat;
+        selectedLng = lng;
+
+        if (map.getLayer('highlight')) {
+            map.removeLayer('highlight');
+            map.removeSource('highlight');
+        }
+
+        const radiusInMeters = 500;
+        const options = { steps: 64, units: 'meters' };
+        const circleFeature = turf.circle([lng, lat], radiusInMeters, options);
+
+        map.addSource('highlight', { type: 'geojson', data: circleFeature });
+        map.addLayer({
+            id: 'highlight',
+            type: 'line',
+            source: 'highlight',
+            paint: { 'line-color': '#ff0000', 'line-width': 3, 'line-opacity': 0.6 }
+        });
+
+        const bounds = turf.bbox(circleFeature);
+        map.fitBounds(bounds, { padding: 20 });
+    }
+
+    // Display Location Suggestions
+    const locationInput = document.getElementById('location');
+    locationInput.addEventListener('input', () => {
+        const query = locationInput.value;
+        if (query.length >= 3) {
+            fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${mapboxgl.accessToken}`)
+                .then(response => response.json())
+                .then(data => updateSuggestions(data.features))
+                .catch(error => console.error('Error fetching suggestions:', error));
+        } else {
+            document.getElementById('suggestions').style.display = 'none';
+        }
+    });
+
+    // Update Suggestions List
+    function updateSuggestions(features) {
+        const suggestionsList = document.getElementById('suggestions');
+        suggestionsList.innerHTML = '';
+        suggestionsList.style.display = features.length > 0 ? 'block' : 'none';
+        
+        features.forEach(feature => {
+            const suggestion = document.createElement('li');
+            suggestion.classList.add('list-group-item');
+            suggestion.textContent = feature.place_name;
+            suggestion.dataset.lng = feature.center[0];
+            suggestion.dataset.lat = feature.center[1];
+            suggestion.addEventListener('click', () => selectSuggestion(suggestion));
+            suggestionsList.appendChild(suggestion);
+        });
+    }
+
+    // Select a Location from Suggestions
+    function selectSuggestion(suggestion) {
+        locationInput.value = suggestion.textContent;
+        document.getElementById('suggestions').style.display = 'none';
+        highlightLocation(suggestion.dataset.lng, suggestion.dataset.lat);
+    }
+
+    // Handle Form Submission to Fetch Data
+    function handleFormSubmit(event) {
+        event.preventDefault();  // Prevent page reload
+        if (selectedLat && selectedLng) {
+            fetchEnvironmentalData(selectedLat, selectedLng);
+        } else {
+            alert("Please select a location from the suggestions.");
+        }
+    }
+
+    // Fetch Environmental Data from WeatherAPI
+    function fetchEnvironmentalData(lat, lng) {
+        const apiKey = '38aced68aeb244f096955318240411';  // Your WeatherAPI key
+
+        // Weather and Air Quality Data
+        fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lng}&aqi=yes`)
+            .then(response => response.json())
+            .then(data => updateEnvironmentalData(data))
+            .catch(error => displayError('environmental', error));
+    }
+
+    // Update Environmental Data in UI
+    function updateEnvironmentalData(data) {
+        document.getElementById('weather').textContent = `Temperature: ${data.current.temp_c} °C, Condition: ${data.current.condition.text}`;
+        document.getElementById('wind').textContent = `Wind Speed: ${data.current.wind_kph} kph`;
+        document.getElementById('air_quality').textContent = `AQI: ${data.current.air_quality.pm2_5}`;
+    }
+
+    // Display Error Messages in UI
+    function displayError(field, error) {
+        console.error(`Error fetching ${field} data:`, error);
+        const fields = ['weather', 'wind', 'air_quality'];
+        fields.forEach(f => document.getElementById(f).textContent = 'Unavailable');
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,370 @@
+/* Base Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff; /* White background */
+    color: #000000; /* Black text */
+}
+
+a {
+    text-decoration: none;
+    color: #000000; /* Black links */
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #333333; /* Dark grey on hover */
+}
+
+/* Navbar Styling */
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #000000; /* Black navbar */
+    color: white;
+}
+
+.nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.nav-list li {
+    margin-left: 20px;
+}
+
+.nav-list a {
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 5px 10px;
+}
+
+.logo img {
+    height: 40px;
+}
+
+.logo a {
+    font-size: 24px;
+    color: white;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+
+/* Footer Styling */
+footer {
+    background-color: #000000;
+    color: white;
+    padding: 20px 0;
+    margin-top: 0;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    padding: 0 20px;
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    flex-direction: column; /* Align logo contents in a row */
+    text-align: center;
+}
+
+.footer-logo h5 {
+    margin-left: 0px; /* Add spacing between items */
+    margin-top: 5px;
+}
+
+.footer-logo p {
+    margin-left: 0px; /* Add spacing between items */
+    margin-top: 5px;
+}
+
+.footer-logo img {
+    height: 50px;
+    margin-right: 5px;
+}
+
+.footer-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.footer-links li {
+    margin-left: 15px;
+}
+
+.footer-links a {
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
+}
+
+/* Main Content Styling */
+main {
+    flex: 1 0 auto;
+}
+.main-content {
+    padding: 20px;
+    text-align: center;
+}
+
+.landing-page {
+    text-align: center;
+    margin: 50px auto;
+}
+
+.landing-page h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.landing-page p {
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+.landing-page .btn {
+    padding: 10px 20px;
+    background-color: #000000; /* Black button */
+    color: white;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.landing-page .btn:hover {
+    background-color: #333333; /* Dark grey on hover */
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .nav-list {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .nav-list li {
+        margin: 10px 0;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer-links {
+        flex-direction: column;
+    }
+
+    .footer-links li {
+        margin: 10px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .landing-page h1 {
+        font-size: 28px;
+    }
+
+    .landing-page p {
+        font-size: 16px;
+    }
+
+    .logo img {
+        height: 30px;
+    }
+}
+
+/* Remove margin from sections and adjust spacing */
+#cta {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* Additional CSS and Animations */
+.hero-section {
+    /* background-image: url('/static/images/geospatial-service.jpg'); */
+    background-size: cover;
+    background-position: center;
+}
+.feature-box {
+    transition: transform 0.3s ease-in-out;
+}
+.feature-box:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+.cta-section {
+    position: relative;
+    z-index: 1;
+}
+.animated-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1), rgba(255,255,255,0));
+    animation: rotate-bg 10s linear infinite;
+    z-index: -1;
+}
+@keyframes rotate-bg {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+.carousel-control-prev-icon, .carousel-control-next-icon {
+    background-color: #212529;
+    border-radius: 50%;
+}
+
+
+/* Additional CSS for black-and-white theme */
+.card {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+.card-header {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+.text-muted {
+    color: #666;
+}
+.btn-dark {
+    background-color: #333;
+    color: white;
+    border-color: #333;
+}
+.btn-dark:hover {
+    background-color: #222;
+    border-color: #222;
+}
+.btn-light {
+    background-color: white;
+    color: #333;
+    border: 1px solid #ccc;
+}
+.btn-light:hover {
+    background-color: #f1f1f1;
+}
+.form-control:focus {
+    box-shadow: none;
+    border-color: #000;
+}
+.fa-user-circle {
+    font-size: 24px;
+    color: #333;
+    margin-right: 10px;
+}
+
+/* Additional */
+.feature-box {
+    transition: transform 0.3s ease-in-out;
+}
+.feature-box:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+.animated-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1), rgba(255,255,255,0));
+    animation: rotate-bg 10s linear infinite;
+    z-index: -1;
+}
+@keyframes rotate-bg {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Service Card Hover Effect */
+.service-card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+.service-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Social Icon Button Hover Effect */
+.social-icons a {
+    transition: transform 0.3s ease-in-out;
+}
+.social-icons a:hover {
+    transform: scale(1.05);
+}
+
+/* Contact Form Styling (Optional Enhancements) */
+.contact-form .form-control:focus {
+    border-color: #333;
+    box-shadow: none;
+}
+
+/* Profile page specific styling */
+.card-header {
+    background-color: #333;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+.card {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+.text-muted {
+    color: #666;
+}
+.btn-dark {
+    background-color: #333;
+    color: white;
+    border-color: #333;
+}
+.btn-dark:hover {
+    background-color: #222;
+    border-color: #222;
+}
+.btn-light {
+    background-color: white;
+    color: #333;
+    border: 1px solid #ccc;
+}
+.btn-light:hover {
+    background-color: #f1f1f1;
+}
+.form-control:focus {
+    box-shadow: none;
+    border-color: #000;
+}
+

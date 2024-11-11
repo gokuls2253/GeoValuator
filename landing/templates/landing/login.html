@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header text-center" style="background-color: #333; color: white;">
+                    <h3>Login</h3>
+                </div>
+                <div class="card-body" style="background-color: #f9f9f9;">
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Username Field -->
+                        <div class="form-group row mb-3">
+                            <label for="username" class="col-sm-4 col-form-label text-right">Username</label>
+                            <div class="col-sm-8">
+                                {{ form.username }}
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-group row mb-3">
+                            <label for="password" class="col-sm-4 col-form-label text-right">Password</label>
+                            <div class="col-sm-8">
+                                {{ form.password }}
+                            </div>
+                        </div>
+
+                        <!-- Login Button -->
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-dark w-100">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Link to register page -->
+                    <hr>
+                    <div class="text-center mt-3">
+                        <p>Don't have an account? <a href="{% url 'register' %}" class="text-dark"><strong>Register here</strong></a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional CSS for form layout -->
+<style>
+    .card {
+        border-radius: 10px;
+        border: 1px solid #ccc;
+    }
+    .card-header {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    .form-control {
+        border-radius: 5px;
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+    .form-control:focus {
+        border-color: #000;
+        box-shadow: none;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .btn-dark {
+        background-color: #333;
+        color: white;
+        border-color: #333;
+        padding: 10px;
+    }
+    .btn-dark:hover {
+        background-color: #222;
+        border-color: #222;
+    }
+    .text-dark {
+        color: #333;
+        text-decoration: none;
+    }
+    .text-dark:hover {
+        text-decoration: underline;
+    }
+</style>
+
+{% endblock %}
